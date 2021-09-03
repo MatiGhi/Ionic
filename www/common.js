@@ -1,0 +1,828 @@
+(self["webpackChunktempo"] = self["webpackChunktempo"] || []).push([["common"],{
+
+/***/ 6633:
+/*!*********************************************************************!*\
+  !*** ./node_modules/@ionic/core/dist/esm/button-active-4927a4c1.js ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "c": () => (/* binding */ createButtonActiveGesture)
+/* harmony export */ });
+/* harmony import */ var _index_7a8b7a1c_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./index-7a8b7a1c.js */ 3150);
+/* harmony import */ var _haptic_27b3f981_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./haptic-27b3f981.js */ 2954);
+/* harmony import */ var _index_f49d994d_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./index-f49d994d.js */ 7279);
+
+
+
+
+const createButtonActiveGesture = (el, isButton) => {
+  let currentTouchedButton;
+  let initialTouchedButton;
+  const activateButtonAtPoint = (x, y, hapticFeedbackFn) => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const target = document.elementFromPoint(x, y);
+    if (!target || !isButton(target)) {
+      clearActiveButton();
+      return;
+    }
+    if (target !== currentTouchedButton) {
+      clearActiveButton();
+      setActiveButton(target, hapticFeedbackFn);
+    }
+  };
+  const setActiveButton = (button, hapticFeedbackFn) => {
+    currentTouchedButton = button;
+    if (!initialTouchedButton) {
+      initialTouchedButton = currentTouchedButton;
+    }
+    const buttonToModify = currentTouchedButton;
+    (0,_index_7a8b7a1c_js__WEBPACK_IMPORTED_MODULE_0__.c)(() => buttonToModify.classList.add('ion-activated'));
+    hapticFeedbackFn();
+  };
+  const clearActiveButton = (dispatchClick = false) => {
+    if (!currentTouchedButton) {
+      return;
+    }
+    const buttonToModify = currentTouchedButton;
+    (0,_index_7a8b7a1c_js__WEBPACK_IMPORTED_MODULE_0__.c)(() => buttonToModify.classList.remove('ion-activated'));
+    /**
+     * Clicking on one button, but releasing on another button
+     * does not dispatch a click event in browsers, so we
+     * need to do it manually here. Some browsers will
+     * dispatch a click if clicking on one button, dragging over
+     * another button, and releasing on the original button. In that
+     * case, we need to make sure we do not cause a double click there.
+     */
+    if (dispatchClick && initialTouchedButton !== currentTouchedButton) {
+      currentTouchedButton.click();
+    }
+    currentTouchedButton = undefined;
+  };
+  return (0,_index_f49d994d_js__WEBPACK_IMPORTED_MODULE_2__.createGesture)({
+    el,
+    gestureName: 'buttonActiveDrag',
+    threshold: 0,
+    onStart: ev => activateButtonAtPoint(ev.currentX, ev.currentY, _haptic_27b3f981_js__WEBPACK_IMPORTED_MODULE_1__.a),
+    onMove: ev => activateButtonAtPoint(ev.currentX, ev.currentY, _haptic_27b3f981_js__WEBPACK_IMPORTED_MODULE_1__.b),
+    onEnd: () => {
+      clearActiveButton(true);
+      (0,_haptic_27b3f981_js__WEBPACK_IMPORTED_MODULE_1__.h)();
+      initialTouchedButton = undefined;
+    }
+  });
+};
+
+
+
+
+/***/ }),
+
+/***/ 7330:
+/*!**************************************************************************!*\
+  !*** ./node_modules/@ionic/core/dist/esm/framework-delegate-4392cd63.js ***!
+  \**************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "a": () => (/* binding */ attachComponent),
+/* harmony export */   "d": () => (/* binding */ detachComponent)
+/* harmony export */ });
+/* harmony import */ var _helpers_dd7e4b7b_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helpers-dd7e4b7b.js */ 2377);
+
+
+const attachComponent = async (delegate, container, component, cssClasses, componentProps) => {
+  if (delegate) {
+    return delegate.attachViewToDom(container, component, componentProps, cssClasses);
+  }
+  if (typeof component !== 'string' && !(component instanceof HTMLElement)) {
+    throw new Error('framework delegate is missing');
+  }
+  const el = (typeof component === 'string')
+    ? container.ownerDocument && container.ownerDocument.createElement(component)
+    : component;
+  if (cssClasses) {
+    cssClasses.forEach(c => el.classList.add(c));
+  }
+  if (componentProps) {
+    Object.assign(el, componentProps);
+  }
+  container.appendChild(el);
+  await new Promise(resolve => (0,_helpers_dd7e4b7b_js__WEBPACK_IMPORTED_MODULE_0__.c)(el, resolve));
+  return el;
+};
+const detachComponent = (delegate, element) => {
+  if (element) {
+    if (delegate) {
+      const container = element.parentElement;
+      return delegate.removeViewFromDom(container, element);
+    }
+    element.remove();
+  }
+  return Promise.resolve();
+};
+
+
+
+
+/***/ }),
+
+/***/ 2954:
+/*!**************************************************************!*\
+  !*** ./node_modules/@ionic/core/dist/esm/haptic-27b3f981.js ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "a": () => (/* binding */ hapticSelectionStart),
+/* harmony export */   "b": () => (/* binding */ hapticSelectionChanged),
+/* harmony export */   "c": () => (/* binding */ hapticSelection),
+/* harmony export */   "d": () => (/* binding */ hapticImpact),
+/* harmony export */   "h": () => (/* binding */ hapticSelectionEnd)
+/* harmony export */ });
+const HapticEngine = {
+  getEngine() {
+    const win = window;
+    return (win.TapticEngine) || (win.Capacitor && win.Capacitor.isPluginAvailable('Haptics') && win.Capacitor.Plugins.Haptics);
+  },
+  available() {
+    return !!this.getEngine();
+  },
+  isCordova() {
+    return !!window.TapticEngine;
+  },
+  isCapacitor() {
+    const win = window;
+    return !!win.Capacitor;
+  },
+  impact(options) {
+    const engine = this.getEngine();
+    if (!engine) {
+      return;
+    }
+    const style = this.isCapacitor() ? options.style.toUpperCase() : options.style;
+    engine.impact({ style });
+  },
+  notification(options) {
+    const engine = this.getEngine();
+    if (!engine) {
+      return;
+    }
+    const style = this.isCapacitor() ? options.style.toUpperCase() : options.style;
+    engine.notification({ style });
+  },
+  selection() {
+    this.impact({ style: 'light' });
+  },
+  selectionStart() {
+    const engine = this.getEngine();
+    if (!engine) {
+      return;
+    }
+    if (this.isCapacitor()) {
+      engine.selectionStart();
+    }
+    else {
+      engine.gestureSelectionStart();
+    }
+  },
+  selectionChanged() {
+    const engine = this.getEngine();
+    if (!engine) {
+      return;
+    }
+    if (this.isCapacitor()) {
+      engine.selectionChanged();
+    }
+    else {
+      engine.gestureSelectionChanged();
+    }
+  },
+  selectionEnd() {
+    const engine = this.getEngine();
+    if (!engine) {
+      return;
+    }
+    if (this.isCapacitor()) {
+      engine.selectionEnd();
+    }
+    else {
+      engine.gestureSelectionEnd();
+    }
+  }
+};
+/**
+ * Trigger a selection changed haptic event. Good for one-time events
+ * (not for gestures)
+ */
+const hapticSelection = () => {
+  HapticEngine.selection();
+};
+/**
+ * Tell the haptic engine that a gesture for a selection change is starting.
+ */
+const hapticSelectionStart = () => {
+  HapticEngine.selectionStart();
+};
+/**
+ * Tell the haptic engine that a selection changed during a gesture.
+ */
+const hapticSelectionChanged = () => {
+  HapticEngine.selectionChanged();
+};
+/**
+ * Tell the haptic engine we are done with a gesture. This needs to be
+ * called lest resources are not properly recycled.
+ */
+const hapticSelectionEnd = () => {
+  HapticEngine.selectionEnd();
+};
+/**
+ * Use this to indicate success/failure/warning to the user.
+ * options should be of the type `{ style: 'light' }` (or `medium`/`heavy`)
+ */
+const hapticImpact = (options) => {
+  HapticEngine.impact(options);
+};
+
+
+
+
+/***/ }),
+
+/***/ 408:
+/*!***********************************************************************!*\
+  !*** ./node_modules/@ionic/core/dist/esm/spinner-configs-cd7845af.js ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "S": () => (/* binding */ SPINNERS)
+/* harmony export */ });
+const spinners = {
+  'bubbles': {
+    dur: 1000,
+    circles: 9,
+    fn: (dur, index, total) => {
+      const animationDelay = `${(dur * index / total) - dur}ms`;
+      const angle = 2 * Math.PI * index / total;
+      return {
+        r: 5,
+        style: {
+          'top': `${9 * Math.sin(angle)}px`,
+          'left': `${9 * Math.cos(angle)}px`,
+          'animation-delay': animationDelay,
+        }
+      };
+    }
+  },
+  'circles': {
+    dur: 1000,
+    circles: 8,
+    fn: (dur, index, total) => {
+      const step = index / total;
+      const animationDelay = `${(dur * step) - dur}ms`;
+      const angle = 2 * Math.PI * step;
+      return {
+        r: 5,
+        style: {
+          'top': `${9 * Math.sin(angle)}px`,
+          'left': `${9 * Math.cos(angle)}px`,
+          'animation-delay': animationDelay,
+        }
+      };
+    }
+  },
+  'circular': {
+    dur: 1400,
+    elmDuration: true,
+    circles: 1,
+    fn: () => {
+      return {
+        r: 20,
+        cx: 48,
+        cy: 48,
+        fill: 'none',
+        viewBox: '24 24 48 48',
+        transform: 'translate(0,0)',
+        style: {}
+      };
+    }
+  },
+  'crescent': {
+    dur: 750,
+    circles: 1,
+    fn: () => {
+      return {
+        r: 26,
+        style: {}
+      };
+    }
+  },
+  'dots': {
+    dur: 750,
+    circles: 3,
+    fn: (_, index) => {
+      const animationDelay = -(110 * index) + 'ms';
+      return {
+        r: 6,
+        style: {
+          'left': `${9 - (9 * index)}px`,
+          'animation-delay': animationDelay,
+        }
+      };
+    }
+  },
+  'lines': {
+    dur: 1000,
+    lines: 12,
+    fn: (dur, index, total) => {
+      const transform = `rotate(${30 * index + (index < 6 ? 180 : -180)}deg)`;
+      const animationDelay = `${(dur * index / total) - dur}ms`;
+      return {
+        y1: 17,
+        y2: 29,
+        style: {
+          'transform': transform,
+          'animation-delay': animationDelay,
+        }
+      };
+    }
+  },
+  'lines-small': {
+    dur: 1000,
+    lines: 12,
+    fn: (dur, index, total) => {
+      const transform = `rotate(${30 * index + (index < 6 ? 180 : -180)}deg)`;
+      const animationDelay = `${(dur * index / total) - dur}ms`;
+      return {
+        y1: 12,
+        y2: 20,
+        style: {
+          'transform': transform,
+          'animation-delay': animationDelay,
+        }
+      };
+    }
+  }
+};
+const SPINNERS = spinners;
+
+
+
+
+/***/ }),
+
+/***/ 1269:
+/*!*************************************************************!*\
+  !*** ./node_modules/@ionic/core/dist/esm/theme-ff3fc52f.js ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "c": () => (/* binding */ createColorClasses),
+/* harmony export */   "g": () => (/* binding */ getClassMap),
+/* harmony export */   "h": () => (/* binding */ hostContext),
+/* harmony export */   "o": () => (/* binding */ openURL)
+/* harmony export */ });
+const hostContext = (selector, el) => {
+  return el.closest(selector) !== null;
+};
+/**
+ * Create the mode and color classes for the component based on the classes passed in
+ */
+const createColorClasses = (color, cssClassMap) => {
+  return (typeof color === 'string' && color.length > 0) ? Object.assign({ 'ion-color': true, [`ion-color-${color}`]: true }, cssClassMap) : cssClassMap;
+};
+const getClassList = (classes) => {
+  if (classes !== undefined) {
+    const array = Array.isArray(classes) ? classes : classes.split(' ');
+    return array
+      .filter(c => c != null)
+      .map(c => c.trim())
+      .filter(c => c !== '');
+  }
+  return [];
+};
+const getClassMap = (classes) => {
+  const map = {};
+  getClassList(classes).forEach(c => map[c] = true);
+  return map;
+};
+const SCHEME = /^[a-z][a-z0-9+\-.]*:/;
+const openURL = async (url, ev, direction, animation) => {
+  if (url != null && url[0] !== '#' && !SCHEME.test(url)) {
+    const router = document.querySelector('ion-router');
+    if (router) {
+      if (ev != null) {
+        ev.preventDefault();
+      }
+      return router.push(url, direction, animation);
+    }
+  }
+  return false;
+};
+
+
+
+
+/***/ }),
+
+/***/ 2217:
+/*!**********************************************************!*\
+  !*** ./node_modules/rxjs/_esm2015/internal/Scheduler.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Scheduler": () => (/* binding */ Scheduler)
+/* harmony export */ });
+class Scheduler {
+    constructor(SchedulerAction, now = Scheduler.now) {
+        this.SchedulerAction = SchedulerAction;
+        this.now = now;
+    }
+    schedule(work, delay = 0, state) {
+        return new this.SchedulerAction(this, work).schedule(state, delay);
+    }
+}
+Scheduler.now = () => Date.now();
+//# sourceMappingURL=Scheduler.js.map
+
+/***/ }),
+
+/***/ 4395:
+/*!***********************************************************************!*\
+  !*** ./node_modules/rxjs/_esm2015/internal/operators/debounceTime.js ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "debounceTime": () => (/* binding */ debounceTime)
+/* harmony export */ });
+/* harmony import */ var _Subscriber__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Subscriber */ 7393);
+/* harmony import */ var _scheduler_async__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scheduler/async */ 3637);
+
+
+function debounceTime(dueTime, scheduler = _scheduler_async__WEBPACK_IMPORTED_MODULE_0__.async) {
+    return (source) => source.lift(new DebounceTimeOperator(dueTime, scheduler));
+}
+class DebounceTimeOperator {
+    constructor(dueTime, scheduler) {
+        this.dueTime = dueTime;
+        this.scheduler = scheduler;
+    }
+    call(subscriber, source) {
+        return source.subscribe(new DebounceTimeSubscriber(subscriber, this.dueTime, this.scheduler));
+    }
+}
+class DebounceTimeSubscriber extends _Subscriber__WEBPACK_IMPORTED_MODULE_1__.Subscriber {
+    constructor(destination, dueTime, scheduler) {
+        super(destination);
+        this.dueTime = dueTime;
+        this.scheduler = scheduler;
+        this.debouncedSubscription = null;
+        this.lastValue = null;
+        this.hasValue = false;
+    }
+    _next(value) {
+        this.clearDebounce();
+        this.lastValue = value;
+        this.hasValue = true;
+        this.add(this.debouncedSubscription = this.scheduler.schedule(dispatchNext, this.dueTime, this));
+    }
+    _complete() {
+        this.debouncedNext();
+        this.destination.complete();
+    }
+    debouncedNext() {
+        this.clearDebounce();
+        if (this.hasValue) {
+            const { lastValue } = this;
+            this.lastValue = null;
+            this.hasValue = false;
+            this.destination.next(lastValue);
+        }
+    }
+    clearDebounce() {
+        const debouncedSubscription = this.debouncedSubscription;
+        if (debouncedSubscription !== null) {
+            this.remove(debouncedSubscription);
+            debouncedSubscription.unsubscribe();
+            this.debouncedSubscription = null;
+        }
+    }
+}
+function dispatchNext(subscriber) {
+    subscriber.debouncedNext();
+}
+//# sourceMappingURL=debounceTime.js.map
+
+/***/ }),
+
+/***/ 2901:
+/*!*****************************************************************!*\
+  !*** ./node_modules/rxjs/_esm2015/internal/scheduler/Action.js ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Action": () => (/* binding */ Action)
+/* harmony export */ });
+/* harmony import */ var _Subscription__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Subscription */ 826);
+
+class Action extends _Subscription__WEBPACK_IMPORTED_MODULE_0__.Subscription {
+    constructor(scheduler, work) {
+        super();
+    }
+    schedule(state, delay = 0) {
+        return this;
+    }
+}
+//# sourceMappingURL=Action.js.map
+
+/***/ }),
+
+/***/ 401:
+/*!**********************************************************************!*\
+  !*** ./node_modules/rxjs/_esm2015/internal/scheduler/AsyncAction.js ***!
+  \**********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "AsyncAction": () => (/* binding */ AsyncAction)
+/* harmony export */ });
+/* harmony import */ var _Action__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Action */ 2901);
+
+class AsyncAction extends _Action__WEBPACK_IMPORTED_MODULE_0__.Action {
+    constructor(scheduler, work) {
+        super(scheduler, work);
+        this.scheduler = scheduler;
+        this.work = work;
+        this.pending = false;
+    }
+    schedule(state, delay = 0) {
+        if (this.closed) {
+            return this;
+        }
+        this.state = state;
+        const id = this.id;
+        const scheduler = this.scheduler;
+        if (id != null) {
+            this.id = this.recycleAsyncId(scheduler, id, delay);
+        }
+        this.pending = true;
+        this.delay = delay;
+        this.id = this.id || this.requestAsyncId(scheduler, this.id, delay);
+        return this;
+    }
+    requestAsyncId(scheduler, id, delay = 0) {
+        return setInterval(scheduler.flush.bind(scheduler, this), delay);
+    }
+    recycleAsyncId(scheduler, id, delay = 0) {
+        if (delay !== null && this.delay === delay && this.pending === false) {
+            return id;
+        }
+        clearInterval(id);
+        return undefined;
+    }
+    execute(state, delay) {
+        if (this.closed) {
+            return new Error('executing a cancelled action');
+        }
+        this.pending = false;
+        const error = this._execute(state, delay);
+        if (error) {
+            return error;
+        }
+        else if (this.pending === false && this.id != null) {
+            this.id = this.recycleAsyncId(this.scheduler, this.id, null);
+        }
+    }
+    _execute(state, delay) {
+        let errored = false;
+        let errorValue = undefined;
+        try {
+            this.work(state);
+        }
+        catch (e) {
+            errored = true;
+            errorValue = !!e && e || new Error(e);
+        }
+        if (errored) {
+            this.unsubscribe();
+            return errorValue;
+        }
+    }
+    _unsubscribe() {
+        const id = this.id;
+        const scheduler = this.scheduler;
+        const actions = scheduler.actions;
+        const index = actions.indexOf(this);
+        this.work = null;
+        this.state = null;
+        this.pending = false;
+        this.scheduler = null;
+        if (index !== -1) {
+            actions.splice(index, 1);
+        }
+        if (id != null) {
+            this.id = this.recycleAsyncId(scheduler, id, null);
+        }
+        this.delay = null;
+    }
+}
+//# sourceMappingURL=AsyncAction.js.map
+
+/***/ }),
+
+/***/ 4548:
+/*!*************************************************************************!*\
+  !*** ./node_modules/rxjs/_esm2015/internal/scheduler/AsyncScheduler.js ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "AsyncScheduler": () => (/* binding */ AsyncScheduler)
+/* harmony export */ });
+/* harmony import */ var _Scheduler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Scheduler */ 2217);
+
+class AsyncScheduler extends _Scheduler__WEBPACK_IMPORTED_MODULE_0__.Scheduler {
+    constructor(SchedulerAction, now = _Scheduler__WEBPACK_IMPORTED_MODULE_0__.Scheduler.now) {
+        super(SchedulerAction, () => {
+            if (AsyncScheduler.delegate && AsyncScheduler.delegate !== this) {
+                return AsyncScheduler.delegate.now();
+            }
+            else {
+                return now();
+            }
+        });
+        this.actions = [];
+        this.active = false;
+        this.scheduled = undefined;
+    }
+    schedule(work, delay = 0, state) {
+        if (AsyncScheduler.delegate && AsyncScheduler.delegate !== this) {
+            return AsyncScheduler.delegate.schedule(work, delay, state);
+        }
+        else {
+            return super.schedule(work, delay, state);
+        }
+    }
+    flush(action) {
+        const { actions } = this;
+        if (this.active) {
+            actions.push(action);
+            return;
+        }
+        let error;
+        this.active = true;
+        do {
+            if (error = action.execute(action.state, action.delay)) {
+                break;
+            }
+        } while (action = actions.shift());
+        this.active = false;
+        if (error) {
+            while (action = actions.shift()) {
+                action.unsubscribe();
+            }
+            throw error;
+        }
+    }
+}
+//# sourceMappingURL=AsyncScheduler.js.map
+
+/***/ }),
+
+/***/ 3637:
+/*!****************************************************************!*\
+  !*** ./node_modules/rxjs/_esm2015/internal/scheduler/async.js ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "asyncScheduler": () => (/* binding */ asyncScheduler),
+/* harmony export */   "async": () => (/* binding */ async)
+/* harmony export */ });
+/* harmony import */ var _AsyncAction__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AsyncAction */ 401);
+/* harmony import */ var _AsyncScheduler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AsyncScheduler */ 4548);
+
+
+const asyncScheduler = new _AsyncScheduler__WEBPACK_IMPORTED_MODULE_0__.AsyncScheduler(_AsyncAction__WEBPACK_IMPORTED_MODULE_1__.AsyncAction);
+const async = asyncScheduler;
+//# sourceMappingURL=async.js.map
+
+/***/ }),
+
+/***/ 2982:
+/*!*********************************************!*\
+  !*** ./src/app/services/network.service.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ConnectionStatus": () => (/* binding */ ConnectionStatus),
+/* harmony export */   "NetworkService": () => (/* binding */ NetworkService)
+/* harmony export */ });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ 4762);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 7716);
+/* harmony import */ var _ionic_native_network_ngx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ionic-native/network/ngx */ 5592);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ 6215);
+/* harmony import */ var _ionic_angular__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ionic/angular */ 476);
+
+
+
+
+
+var ConnectionStatus;
+(function (ConnectionStatus) {
+    ConnectionStatus[ConnectionStatus["Online"] = 0] = "Online";
+    ConnectionStatus[ConnectionStatus["Offline"] = 1] = "Offline";
+})(ConnectionStatus || (ConnectionStatus = {}));
+let NetworkService = class NetworkService {
+    constructor(network, toastController, plt) {
+        this.network = network;
+        this.toastController = toastController;
+        this.plt = plt;
+        this.status = new rxjs__WEBPACK_IMPORTED_MODULE_1__.BehaviorSubject(ConnectionStatus.Offline);
+        this.plt.ready().then(() => {
+            this.initializeNetworkEvents();
+            let status = this.network.type !== 'none' ? ConnectionStatus.Online : ConnectionStatus.Offline;
+            this.status.next(status);
+        });
+    }
+    initializeNetworkEvents() {
+        this.network.onDisconnect().subscribe(() => {
+            if (this.status.getValue() === ConnectionStatus.Online) {
+                this.updateNetworkStatus(ConnectionStatus.Offline);
+            }
+        });
+        this.network.onConnect().subscribe(() => {
+            if (this.status.getValue() === ConnectionStatus.Offline) {
+                this.updateNetworkStatus(ConnectionStatus.Online);
+            }
+        });
+    }
+    updateNetworkStatus(status) {
+        return (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__awaiter)(this, void 0, void 0, function* () {
+            this.status.next(status);
+            let connection = status == ConnectionStatus.Offline ? 'Offline' : 'Online';
+            let toast = this.toastController.create({
+                message: `You are now ${connection}`,
+                duration: 3000,
+                position: 'bottom'
+            });
+            toast.then(toast => toast.present());
+        });
+    }
+    onNetworkChange() {
+        return this.status.asObservable();
+    }
+    getCurrentNetworkStatus() {
+        return this.status.getValue();
+    }
+};
+NetworkService.ctorParameters = () => [
+    { type: _ionic_native_network_ngx__WEBPACK_IMPORTED_MODULE_0__.Network },
+    { type: _ionic_angular__WEBPACK_IMPORTED_MODULE_3__.ToastController },
+    { type: _ionic_angular__WEBPACK_IMPORTED_MODULE_3__.Platform }
+];
+NetworkService = (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__decorate)([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_4__.Injectable)({
+        providedIn: 'root'
+    })
+], NetworkService);
+
+
+
+/***/ })
+
+}]);
+//# sourceMappingURL=common.js.map
